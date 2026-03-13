@@ -126,5 +126,64 @@ curl -X POST 'https://license-service-rnpmijlttd.cn-hangzhou.fcapp.run/license/v
 
 ```
 
+##阿里云要建立步骤
+A. 账号准备
+
+1. 注册阿里云账号
+
+2. 完成实名认证
+
+3. 开通 Function Compute
+    1) 开通 Function Compute
+    2) 进入函数计算控制台
+    3) 创建一个服务
+    4) 再创建一个函数
+       创建web函数- HTTp接口类型 - 运行环境 Node.js 18 - 上传方式（通过zip包上传） - 函数的触发器里面选用无需认证，那里面有一个网址，就是后面Flutter用来访问的地址 - 如果在线上改了代码，要点击部署才会用
+    6) 运行环境选 Node.js
+       
+4. 开通 Tablestore
+    Tablestore 有 VCU 模式 和 CU 模式 两种计费模式， 测试阶段用CU模式
+    运行环境选 Node.js
+    这里面选用 网络管理- 勾线公网 - 不勾选 允许来源类型  可信网关(控制台)
+   
+6. 创建 RAM 用户和 AccessKey。（记住AccessKey ID, AccessKey Secret）
+   进去RAm控制台 -  创建RAM用户 - 访问方式（编程访问，不要勾选控制台访问）（本地开发环境使用） - 给RAM用户授权 - 创建AccessKey
+   添加权限：
+      AliyunOTSFullAccess 
+      AliyunFCFullAccess
+
+B. 存储准备
+
+1. 创建 Tablestore 实例
+
+2. 选好地域 （我们选华东1 -杭州），tablestore实例和FC的函数要在一个地域
+
+3. 创建 四个表。
+   activation_codes 主键： code String
+   token_license 主键： token_id String
+   activation_logs 主键： log_id String
+   system_meta 主键： meta_key String
+
+C. 后端部署
+
+    整理 Node.js 代码
+    把本地 json 读写换成 Tablestore 读写
+    在 FC 创建 Node.js 函数
+
+
+配置环境变量
+    FC控制台-找到你的函数-配置环境变量
+    ALIYUN_ACCESS_KEY_ID
+    ALIYUN_ACCESS_KEY_SECRET
+    OTS_INSTANCE_NAME
+    OTS_ENDPOINT
+
+配置 HTTP 入口。
+
+D. 测试
+
+  先在 FC 控制台测试
+  再接 Flutter。
+
 
 
