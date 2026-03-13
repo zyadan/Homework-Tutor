@@ -1,0 +1,229 @@
+{
+  "currentUserSeq": 13,
+  "activationCodes": {
+    "VIP-D7ZZ-6WDU-ZU5N": {
+      "userId": "U000001",
+      "code": "VIP-D7ZZ-6WDU-ZU5N",
+      "durationDays": 30,
+      "batchId": "TEST_BATCH_001",
+      "remark": "manual api test",
+      "status": "used",
+      "createdAt": 1773320602846,
+      "usedAt": 1773320742358,
+      "usedByDeviceType": "android"
+    },
+    "VIP-K98U-E3H7-8FJE": {
+      "userId": "U000002",
+      "code": "VIP-K98U-E3H7-8FJE",
+      "durationDays": 30,
+      "batchId": "TEST_BATCH_001",
+      "remark": "manual api test",
+      "status": "unused",
+      "createdAt": 1773320602846,
+      "usedAt": 0,
+      "usedByDeviceType": ""
+    },
+    "VIP-AJKG-6S22-KM5W": {
+      "userId": "U000003",
+      "code": "VIP-AJKG-6S22-KM5W",
+      "durationDays": 30,
+      "batchId": "TEST_BATCH_001",
+      "remark": "manual api test",
+      "status": "unused",
+      "createdAt": 1773320602846,
+      "usedAt": 0,
+      "usedByDeviceType": ""
+    },
+    "VIP-XRRQ-P2PF-AQQ2": {
+      "userId": "U000004",
+      "code": "VIP-XRRQ-P2PF-AQQ2",
+      "durationDays": 30,
+      "batchId": "LOCAL_BATCH_001",
+      "remark": "",
+      "status": "used",
+      "createdAt": 1773321049354,
+      "usedAt": 1773321059135,
+      "usedByDeviceType": "linux"
+    },
+    "VIP-P82R-B5VN-QAZG": {
+      "userId": "U000005",
+      "code": "VIP-P82R-B5VN-QAZG",
+      "durationDays": 30,
+      "batchId": "LOCAL_BATCH_001",
+      "remark": "",
+      "status": "unused",
+      "createdAt": 1773321049354,
+      "usedAt": 0,
+      "usedByDeviceType": ""
+    },
+    "VIP-CZFP-FJLQ-X45U": {
+      "userId": "U000006",
+      "code": "VIP-CZFP-FJLQ-X45U",
+      "durationDays": 30,
+      "batchId": "LOCAL_BATCH_001",
+      "remark": "",
+      "status": "unused",
+      "createdAt": 1773321049354,
+      "usedAt": 0,
+      "usedByDeviceType": ""
+    },
+    "VIP-JFDA-YJJL-6R8L": {
+      "userId": "U000007",
+      "code": "VIP-JFDA-YJJL-6R8L",
+      "durationDays": 30,
+      "batchId": "LOCAL_BATCH_001",
+      "remark": "",
+      "status": "unused",
+      "createdAt": 1773321049354,
+      "usedAt": 0,
+      "usedByDeviceType": ""
+    },
+    "VIP-S4FA-73NS-366R": {
+      "userId": "U000008",
+      "code": "VIP-S4FA-73NS-366R",
+      "durationDays": 30,
+      "batchId": "LOCAL_BATCH_001",
+      "remark": "",
+      "status": "unused",
+      "createdAt": 1773321049354,
+      "usedAt": 0,
+      "usedByDeviceType": ""
+    },
+    "VIP-AFA2-BULX-JR5H": {
+      "userId": "U000009",
+      "code": "VIP-AFA2-BULX-JR5H",
+      "durationDays": 30,
+      "batchId": "LOCAL_BATCH_001",
+      "remark": "",
+      "status": "unused",
+      "createdAt": 1773321049354,
+      "usedAt": 0,
+      "usedByDeviceType": ""
+    },
+    "VIP-SG44-CH9R-GZ27": {
+      "userId": "U000010",
+      "code": "VIP-SG44-CH9R-GZ27",
+      "durationDays": 30,
+      "batchId": "LOCAL_BATCH_001",
+      "remark": "",
+      "status": "used",
+      "createdAt": 1773321049354,
+      "usedAt": 1773321073851,
+      "usedByDeviceType": "linux"
+    },
+    "VIP-KZU9-JCUF-8YSG": {
+      "userId": "U000011",
+      "code": "VIP-KZU9-JCUF-8YSG",
+      "durationDays": 30,
+      "batchId": "LOCAL_BATCH_001",
+      "remark": "",
+      "status": "unused",
+      "createdAt": 1773321049354,
+      "usedAt": 0,
+      "usedByDeviceType": ""
+    },
+    "VIP-N25K-T6CZ-WFE9": {
+      "userId": "U000012",
+      "code": "VIP-N25K-T6CZ-WFE9",
+      "durationDays": 30,
+      "batchId": "LOCAL_BATCH_001",
+      "remark": "",
+      "status": "unused",
+      "createdAt": 1773321049354,
+      "usedAt": 0,
+      "usedByDeviceType": ""
+    },
+    "VIP-RZ9X-RKDZ-8YVM": {
+      "userId": "U000013",
+      "code": "VIP-RZ9X-RKDZ-8YVM",
+      "durationDays": 30,
+      "batchId": "LOCAL_BATCH_001",
+      "remark": "",
+      "status": "unused",
+      "createdAt": 1773321049354,
+      "usedAt": 0,
+      "usedByDeviceType": ""
+    }
+  },
+  "userLicenses": {
+    "U000001": {
+      "userId": "U000001",
+      "deviceType": "android",
+      "subRole": "normal",
+      "expireAt": 1775912742358,
+      "activatedCode": "VIP-D7ZZ-6WDU-ZU5N",
+      "updatedAt": 1773320742358,
+      "licenseStatus": "active"
+    },
+    "U000004": {
+      "userId": "U000004",
+      "deviceType": "linux",
+      "subRole": "normal",
+      "expireAt": 1775913059135,
+      "activatedCode": "VIP-XRRQ-P2PF-AQQ2",
+      "updatedAt": 1773321059135,
+      "licenseStatus": "active"
+    },
+    "U000010": {
+      "userId": "U000010",
+      "deviceType": "linux",
+      "subRole": "normal",
+      "expireAt": 1775913073851,
+      "activatedCode": "VIP-SG44-CH9R-GZ27",
+      "updatedAt": 1773321073851,
+      "licenseStatus": "active"
+    }
+  },
+  "activationLogs": [
+    {
+      "action": "generate",
+      "code": "",
+      "userId": "",
+      "deviceType": "",
+      "result": "success",
+      "message": "generated 3 codes",
+      "time": 1773320602846,
+      "batchId": "TEST_BATCH_001"
+    },
+    {
+      "action": "activate",
+      "code": "VIP-D7ZZ-6WDU-ZU5N",
+      "userId": "U000001",
+      "deviceType": "android",
+      "result": "success",
+      "message": "activated",
+      "time": 1773320742358,
+      "batchId": "TEST_BATCH_001"
+    },
+    {
+      "action": "generate",
+      "code": "",
+      "userId": "",
+      "deviceType": "",
+      "result": "success",
+      "message": "generated 10 codes",
+      "time": 1773321049354,
+      "batchId": "LOCAL_BATCH_001"
+    },
+    {
+      "action": "activate",
+      "code": "VIP-XRRQ-P2PF-AQQ2",
+      "userId": "U000004",
+      "deviceType": "linux",
+      "result": "success",
+      "message": "activated",
+      "time": 1773321059135,
+      "batchId": "LOCAL_BATCH_001"
+    },
+    {
+      "action": "activate",
+      "code": "VIP-SG44-CH9R-GZ27",
+      "userId": "U000010",
+      "deviceType": "linux",
+      "result": "success",
+      "message": "activated",
+      "time": 1773321073851,
+      "batchId": "LOCAL_BATCH_001"
+    }
+  ]
+}
