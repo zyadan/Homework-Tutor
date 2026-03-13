@@ -86,7 +86,45 @@ cd /Learning/generatecode/flutter_license_module/example
 flutter run -d linux
 ```
 
+## 用在阿里云上
 
+本地的代码
+最简单的打包方式
+在 license_gene_service 目录执行：
+```
+npm install --omit=dev
+zip -r license_gene_service.zip app.js index.js config.js package.json README.md routes services utils node_modules
+```
+
+生成激活码
+```
+curl -X POST 'https://license-service-rnpmijlttd.cn-hangzhou.fcapp.run/admin/generateCodes' \
+  -H 'Content-Type: application/json' \
+  -H 'x-admin-token: test-admin' \
+  -d '{
+    "count": 2,
+    "durationDays": 30,
+    "prefix": "VIP",
+    "batchId": "FC_TEST_004"
+  }'
+```
+激活
+```
+curl -X POST 'https://license-service-rnpmijlttd.cn-hangzhou.fcapp.run/license/activate' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "code": "VIP-CCNR-PQQH-27QS"
+  }'
+```
+验证
+```
+curl -X POST 'https://license-service-rnpmijlttd.cn-hangzhou.fcapp.run/license/verify' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "code": "VIP-CCNR-PQQH-27QS"
+  }'
+
+```
 
 
 
