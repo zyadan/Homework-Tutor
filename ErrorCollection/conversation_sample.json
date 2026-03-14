@@ -1,0 +1,245 @@
+{
+  "conversation_id": "conv_20240315_001",
+  "student_id": "stu_001",
+  "student_name": "乐乐",
+  "grade": 5,
+  "subject": "数学",
+  "mode": "订正",
+  "session_date": "2024-03-15",
+  "messages": [
+    {
+      "role": "system",
+      "content": "订正模式已启动，错题队列已注入"
+    },
+    {
+      "role": "assistant",
+      "content": "作业做完了～我们来看几道题，你给老师讲讲你是怎么做的？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": false,
+        "skip_question": false,
+        "mode_action": null
+      }
+    },
+    {
+      "role": "user",
+      "content": "好，第一道是3/4加1/2，我算的是4/6"
+    },
+    {
+      "role": "assistant",
+      "content": "嗯，你讲讲是怎么算的？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": false,
+        "skip_question": false,
+        "mode_action": null
+      }
+    },
+    {
+      "role": "user",
+      "content": "就是上面加上面，下面加下面，3加1等于4，4加2等于6，所以是4/6"
+    },
+    {
+      "role": "assistant",
+      "content": "你再想想，3/4是什么意思？把一个东西分成4份，取了3份对吗？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": false,
+        "skip_question": false,
+        "mode_action": null
+      }
+    },
+    {
+      "role": "user",
+      "content": "对啊"
+    },
+    {
+      "role": "assistant",
+      "content": "那1/2呢，是把一个东西分成几份取了几份？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": false,
+        "skip_question": false,
+        "mode_action": null
+      }
+    },
+    {
+      "role": "user",
+      "content": "分成2份取了1份"
+    },
+    {
+      "role": "assistant",
+      "content": "对！那3/4是把东西分成4份，1/2是把东西分成2份，这两个份的大小一样吗？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": false,
+        "skip_question": false,
+        "mode_action": null
+      }
+    },
+    {
+      "role": "user",
+      "content": "不一样，4份的每份比较小"
+    },
+    {
+      "role": "assistant",
+      "content": "对了！份的大小不一样，能直接加吗？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": false,
+        "skip_question": false,
+        "mode_action": null
+      }
+    },
+    {
+      "role": "user",
+      "content": "不能…那要怎么算"
+    },
+    {
+      "role": "assistant",
+      "content": "要让两个分数的份一样大，这个步骤叫什么？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": false,
+        "skip_question": false,
+        "mode_action": null
+      }
+    },
+    {
+      "role": "user",
+      "content": "通分？"
+    },
+    {
+      "role": "assistant",
+      "content": "就是通分！1/2通分成几分之几，和3/4的分母一样？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": false,
+        "skip_question": false,
+        "mode_action": null
+      }
+    },
+    {
+      "role": "user",
+      "content": "2/4，因为乘以2"
+    },
+    {
+      "role": "assistant",
+      "content": "对！那3/4加2/4等于多少？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": false,
+        "skip_question": false,
+        "mode_action": null
+      }
+    },
+    {
+      "role": "user",
+      "content": "5/4"
+    },
+    {
+      "role": "assistant",
+      "content": "就是这样！你能告诉老师之前错在哪里，正确应该怎么想？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": false,
+        "skip_question": false,
+        "mode_action": null
+      }
+    },
+    {
+      "role": "user",
+      "content": "之前我直接把分子分母分别加了，不对的，应该先通分，让分母一样，再加分子"
+    },
+    {
+      "role": "assistant",
+      "content": "搞清楚了！这道掌握了，我们看下一道，你讲讲这道怎么做的？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": true,
+        "skip_question": false,
+        "mode_action": "next_question"
+      }
+    },
+    {
+      "role": "user",
+      "content": "第二道，小明跑了全程的2/5，小红跑了全程的1/3，两人一共跑了全程的几分之几，我写的是3/8"
+    },
+    {
+      "role": "assistant",
+      "content": "你讲讲你是怎么算的？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": false,
+        "skip_question": false,
+        "mode_action": null
+      }
+    },
+    {
+      "role": "user",
+      "content": "2加1等于3，5加3等于8，所以是3/8"
+    },
+    {
+      "role": "assistant",
+      "content": "哎，你再看看这道题用到了什么运算？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": false,
+        "skip_question": false,
+        "mode_action": null
+      }
+    },
+    {
+      "role": "user",
+      "content": "分数加法"
+    },
+    {
+      "role": "assistant",
+      "content": "对，那分数加法要先做什么？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": false,
+        "skip_question": false,
+        "mode_action": null
+      }
+    },
+    {
+      "role": "user",
+      "content": "哦！要通分！2/5加1/3，分母是5和3，公倍数是15，所以2/5变成6/15，1/3变成5/15，加起来是11/15"
+    },
+    {
+      "role": "assistant",
+      "content": "自己发现了！之前错在哪里？",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": false,
+        "skip_question": false,
+        "mode_action": null
+      }
+    },
+    {
+      "role": "user",
+      "content": "又直接加分子分母了，没有通分"
+    },
+    {
+      "role": "assistant",
+      "content": "今天的题全部看完了！你自己发现了很多问题，这个能力很重要。",
+      "meta_data": {
+        "request_camera": false,
+        "mastery_confirmed": true,
+        "skip_question": false,
+        "mode_action": "end_session"
+      }
+    }
+  ],
+  "ocr_results": [
+    {
+      "question_text": "3/4 + 1/2 = ?",
+      "student_answer": "4/6"
+    },
+    {
+      "question_text": "小明跑了全程的2/5，小红跑了全程的1/3，两人一共跑了全程的几分之几？",
+      "student_answer": "3/8"
+    }
+  ]
+}

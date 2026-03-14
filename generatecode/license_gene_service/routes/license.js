@@ -53,7 +53,7 @@ module.exports = function createLicenseRouter() {
     }
   });
 
-  router.get('/user/status', async function handleStatus(req, res, next) {
+  router.get('/token/status', async function handleStatus(req, res, next) {
     try {
       const result = await licenseService.getTokenStatus({
         tokenId: req.query.tokenId || ''

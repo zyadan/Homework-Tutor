@@ -313,7 +313,7 @@ async function batchCreateTokenLicensesTable(items) {
     const item = items[index];
 
     await client.putRow({
-      tableName: config.tables.userLicense,
+      tableName: config.tables.tokenLicense,
       condition: new Tablestore.Condition(
         Tablestore.RowExistenceExpectation.IGNORE,
         null
@@ -395,7 +395,7 @@ async function markActivationCodeUsedTable(params) {
 async function findTokenLicenseTable(tokenId) {
   const client = createClient();
   const response = await client.getRow({
-    tableName: config.tables.userLicense,
+    tableName: config.tables.tokenLicense,
     primaryKey: [{ token_id: tokenId }],
     maxVersions: 1
   });
@@ -429,7 +429,7 @@ async function upsertTokenLicenseTable(license) {
   const client = createClient();
 
   await client.putRow({
-    tableName: config.tables.userLicense,
+    tableName: config.tables.tokenLicense,
     condition: new Tablestore.Condition(
       Tablestore.RowExistenceExpectation.IGNORE,
       null
