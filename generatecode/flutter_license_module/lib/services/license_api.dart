@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-import '../models/user_global_state.dart';
+import '../models/token_global_state.dart';
 
 class LicenseApi {
   LicenseApi({required this.baseUrl, http.Client? client})
@@ -11,7 +11,7 @@ class LicenseApi {
   final String baseUrl;
   final http.Client _client;
 
-  Future<UserGlobalState> activate({
+  Future<TokenGlobalState> activate({
     required String deviceId,
     required String code,
   }) async {
@@ -27,16 +27,16 @@ class LicenseApi {
     return _parseState(response);
   }
 
-  Future<UserGlobalState> verify({
+  Future<TokenGlobalState> verify({
     required String deviceId,
-    String? userId,
+    String? tokenId,
     String? code,
   }) async {
     final response = await _client.post(
       Uri.parse('$baseUrl/license/verify'),
       headers: {'content-type': 'application/json'},
       body: jsonEncode({
-        'userId': userId,
+        'tokenId': tokenId,
         'deviceId': deviceId,
         'code': code?.trim().toUpperCase(),
       }),
@@ -45,12 +45,12 @@ class LicenseApi {
     return _parseState(response);
   }
 
-  UserGlobalState _parseState(http.Response response) {
+  TokenGlobalState _parseState(http.Response response) {
     final Map<String, dynamic> json = jsonDecode(response.body) as Map<String, dynamic>;
     if (response.statusCode >= 400) {
       throw LicenseApiException(json['message'] as String? ?? 'license api failed');
     }
-    return UserGlobalState.fromJson(json);
+    return TokenGlobalState.fromJson(json);
   }
 
   void dispose() {

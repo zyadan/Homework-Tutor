@@ -118,7 +118,7 @@ class _LicenseActivationPageState extends State<LicenseActivationPage>
     try {
       await widget.notifier.refresh(
         deviceId: _deviceId,
-        userId: currentState?.userId,
+        tokenId: currentState?.tokenId,
         code: code,
       );
     } catch (error) {
@@ -184,7 +184,7 @@ class _LicenseActivationPageState extends State<LicenseActivationPage>
 
     if (state != null) {
       children.add(const SizedBox(height: 24));
-      children.add(Text('internalUserId: ${state.userId}'));
+      children.add(Text('internalTokenId: ${state.tokenId}'));
       children.add(Text('deviceType: ${state.deviceId}'));
       children.add(Text('status: ${state.licenseStatus}'));
       children.add(Text('role: ${state.subRole}'));

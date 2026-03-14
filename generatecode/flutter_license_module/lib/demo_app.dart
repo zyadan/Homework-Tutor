@@ -54,7 +54,7 @@ class _LicenseDemoAppState extends State<LicenseDemoApp> {
           bottom: const TabBar(
             tabs: [
               Tab(text: '生成激活码'),
-              Tab(text: '用户激活'),
+              Tab(text: 'Token 激活'),
             ],
           ),
         ),

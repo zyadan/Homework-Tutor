@@ -13,7 +13,7 @@ class LicenseModuleExample extends StatefulWidget {
 }
 
 class _LicenseModuleExampleState extends State<LicenseModuleExample> {
-  final _baseUrlController = TextEditingController(text: 'http://127.0.0.1:9000'); //'http://10.0.2.2:9000'
+  final _baseUrlController = TextEditingController(text: 'https://license-service-rnpmijlttd.cn-hangzhou.fcapp.run'); //http://127.0.0.1:9000, 'http://10.0.2.2:9000'
   final _adminTokenController = TextEditingController(text: 'test-admin');
 
   @override

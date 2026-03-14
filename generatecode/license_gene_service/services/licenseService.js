@@ -14,8 +14,8 @@ function daysToMs(days) {
   return parseInt(days || 0, 10) * 24 * 60 * 60 * 1000;
 }
 
-function padUserId(seq) {
-  return 'U' + ('000000' + String(seq)).slice(-6);
+function padTokenId(seq) {
+  return 'T' + ('000000' + String(seq)).slice(-6);
 }
 
 function randomString(length) {
@@ -34,12 +34,12 @@ function createActivationCode(prefix) {
   return [safePrefix, randomString(4), randomString(4), randomString(4)].join('-');
 }
 
-function computeRemainDays(expireAt) {
-  if (!expireAt) {
+function computeRemainDays(expireAtTs) {
+  if (!expireAtTs) {
     return 0;
   }
 
-  const remain = expireAt - nowMs();
+  const remain = expireAtTs - nowMs();
   if (remain <= 0) {
     return 0;
   }
@@ -52,16 +52,19 @@ function normalizeLicense(license) {
     return null;
   }
 
-  const remainDays = computeRemainDays(license.expireAt);
+  const expireAtTs = license.expireAtTs || 0;
+  const remainDays = computeRemainDays(expireAtTs);
   const active = remainDays > 0 && license.licenseStatus !== 'banned';
 
   return {
-    userId: license.userId,
+    tokenId: license.tokenId,
     deviceType: license.deviceType || 'unknown',
     subRole: license.subRole || 'normal',
-    expireAt: license.expireAt || 0,
+    expireAt: license.expireAt || '',
+    expireAtTs: expireAtTs,
     activatedCode: license.activatedCode || '',
-    updatedAt: license.updatedAt || 0,
+    updatedAt: license.updatedAt || '',
+    updatedAtTs: license.updatedAtTs || 0,
     remainDays: remainDays,
     licenseStatus: active ? 'active' : (license.licenseStatus || 'inactive'),
     active: active
@@ -79,49 +82,46 @@ async function generateCodes(params) {
     throw createHttpError(400, '生成数量必须大于 0');
   }
 
-  const userIds = await repository.allocateUserIds(count);
+  const tokenIds = await repository.allocateTokenIds(count);
   const currentTime = nowMs();
 
-  const items = userIds.map(function mapUserId(userId) {
+  const items = tokenIds.map(function mapTokenId(tokenId) {
     return {
-      userId: userId,
+      tokenId: tokenId,
       code: createActivationCode(prefix),
       durationDays: durationDays,
       batchId: batchId,
       remark: remark,
-      status: 'unused',
-      createdAt: currentTime,
-      usedAt: 0,
+      status: 'inactivate',
+      createdAtTs: currentTime,
+      usedAtTs: 0,
       usedByDeviceType: ''
     };
   });
 
   const initialLicenses = items.map(function mapItem(item) {
     return {
-      userId: item.userId,
+      tokenId: item.tokenId,
       deviceType: '',
       subRole: 'normal',
-      expireAt: 0,
+      expireAtTs: 0,
       activatedCode: item.code,
-      updatedAt: currentTime,
+      updatedAtTs: currentTime,
       licenseStatus: 'inactive'
     };
   });
 
-  console.log('generateCodes items =>', JSON.stringify(items));
-  console.log('generateCodes initialLicenses =>', JSON.stringify(initialLicenses));
-
   await repository.batchCreateActivationCodes(items);
-  await repository.batchCreateUserLicenses(initialLicenses);
+  await repository.batchCreateTokenLicenses(initialLicenses);
 
   await repository.appendActivationLog({
     action: 'generate',
     code: '',
-    userId: '',
+    tokenId: '',
     deviceType: '',
     result: 'success',
     message: 'generated ' + count + ' codes',
-    time: currentTime,
+    timeTs: currentTime,
     batchId: batchId
   });
 
@@ -129,11 +129,11 @@ async function generateCodes(params) {
     count: count,
     durationDays: durationDays,
     batchId: batchId,
-    startUserId: items.length > 0 ? items[0].userId : null,
-    endUserId: items.length > 0 ? items[items.length - 1].userId : null,
+    startTokenId: items.length > 0 ? items[0].tokenId : null,
+    endTokenId: items.length > 0 ? items[items.length - 1].tokenId : null,
     items: items.map(function mapItem(item) {
       return {
-        userId: item.userId,
+        tokenId: item.tokenId,
         code: item.code
       };
     })
@@ -144,106 +144,92 @@ async function activateCode(params) {
   const code = (params.code || '').trim().toUpperCase();
   const deviceType = (params.deviceType || 'unknown').trim() || 'unknown';
 
-  console.log('activateCode params =>', JSON.stringify({
-    code: code,
-    deviceType: deviceType
-  }));
-
   if (!code) {
     throw createHttpError(400, '激活码不能为空');
   }
 
   const activation = await repository.findActivationCode(code);
-  console.log('activation from table =>', JSON.stringify(activation));
 
   if (!activation) {
     throw createHttpError(404, '激活码不存在');
   }
 
-  if (!activation.userId) {
-    throw createHttpError(500, '激活码记录缺少 userId');
+  if (!activation.tokenId) {
+    throw createHttpError(500, '激活码记录缺少 tokenId');
   }
 
   if (activation.status === 'used') {
     throw createHttpError(409, '激活码已使用');
   }
 
-  const existing = await repository.findUserLicense(activation.userId);
-  console.log('existing license =>', JSON.stringify(existing));
-
+  const existing = await repository.findTokenLicense(activation.tokenId);
   const current = nowMs();
-  const baseExpireAt = existing && existing.expireAt > current ? existing.expireAt : current;
-  const expireAt = baseExpireAt + daysToMs(activation.durationDays);
+  const baseExpireAtTs = existing && existing.expireAtTs > current ? existing.expireAtTs : current;
+  const expireAtTs = baseExpireAtTs + daysToMs(activation.durationDays);
 
   const payload = {
-    userId: activation.userId,
+    tokenId: activation.tokenId,
     deviceType: deviceType,
     subRole: existing && existing.subRole ? existing.subRole : 'normal',
-    expireAt: expireAt,
+    expireAtTs: expireAtTs,
     activatedCode: code,
-    updatedAt: current,
+    updatedAtTs: current,
     licenseStatus: 'active'
   };
 
-  console.log('upsertUserLicense payload =>', JSON.stringify(payload));
-
-  const saved = await repository.upsertUserLicense(payload);
+  const saved = await repository.upsertTokenLicense(payload);
 
   await repository.markActivationCodeUsed({
     code: code,
-    usedAt: current,
+    usedAtTs: current,
     usedByDeviceType: deviceType
   });
 
   await repository.appendActivationLog({
     action: 'activate',
     code: code,
-    userId: activation.userId,
+    tokenId: activation.tokenId,
     deviceType: deviceType,
     result: 'success',
     message: 'activated',
-    time: current,
+    timeTs: current,
     batchId: activation.batchId || ''
   });
 
   const normalized = normalizeLicense(saved);
   return {
     success: true,
-    userId: normalized.userId,
+    tokenId: normalized.tokenId,
     deviceType: normalized.deviceType,
     subRole: normalized.subRole,
     expireAt: normalized.expireAt,
+    expireAtTs: normalized.expireAtTs,
     remainDays: normalized.remainDays,
     licenseStatus: normalized.licenseStatus,
     active: normalized.active,
     activatedCode: normalized.activatedCode,
-    updatedAt: normalized.updatedAt
+    updatedAt: normalized.updatedAt,
+    updatedAtTs: normalized.updatedAtTs
   };
 }
 
 async function verifyCode(params) {
   const code = (params.code || '').trim().toUpperCase();
-  const userId = (params.userId || '').trim().toUpperCase();
+  const tokenId = (params.tokenId || '').trim().toUpperCase();
   const deviceType = (params.deviceType || 'unknown').trim() || 'unknown';
-
-  console.log('verifyCode params =>', JSON.stringify({
-    code: code,
-    userId: userId,
-    deviceType: deviceType
-  }));
 
   if (code) {
     const activation = await repository.findActivationCode(code);
-    console.log('verify activation from table =>', JSON.stringify(activation));
 
     if (!activation) {
       return {
         active: false,
-        userId: '',
+        tokenId: '',
         deviceType: deviceType,
         subRole: 'normal',
         remainDays: 0,
-        expireAt: 0,
+        expireAt: '',
+        expireAtTs: 0,
         licenseStatus: 'code_not_found',
         activatedCode: code
       };
@@ -252,27 +238,28 @@ async function verifyCode(params) {
     if (activation.status !== 'used') {
       return {
         active: false,
-        userId: activation.userId,
+        tokenId: activation.tokenId,
         deviceType: deviceType,
         subRole: 'normal',
         remainDays: 0,
-        expireAt: 0,
-        licenseStatus: 'unused',
+        expireAt: '',
+        expireAtTs: 0,
+        licenseStatus: 'inactivate',
         activatedCode: code
       };
     }
 
-    const license = await repository.findUserLicense(activation.userId);
-    console.log('verify license from table =>', JSON.stringify(license));
+    const license = await repository.findTokenLicense(activation.tokenId);
 
     if (!license) {
       return {
         active: false,
-        userId: activation.userId,
+        tokenId: activation.tokenId,
         deviceType: deviceType,
         subRole: 'normal',
         remainDays: 0,
-        expireAt: 0,
+        expireAt: '',
+        expireAtTs: 0,
         licenseStatus: 'inactive',
         activatedCode: code
       };
@@ -281,35 +268,31 @@ async function verifyCode(params) {
     return normalizeLicense(license);
   }
 
-  if (!userId) {
-    throw createHttpError(400, '验证时必须提供激活码或用户 ID');
+  if (!tokenId) {
+    throw createHttpError(400, '验证时必须提供激活码或 tokenId');
   }
 
-  return getUserStatus({ userId: userId });
+  return getTokenStatus({ tokenId: tokenId });
 }
 
-async function getUserStatus(params) {
-  const userId = (params.userId || '').trim().toUpperCase();
+async function getTokenStatus(params) {
+  const tokenId = (params.tokenId || '').trim().toUpperCase();
 
-  console.log('getUserStatus params =>', JSON.stringify({
-    userId: userId
-  }));
-
-  if (!userId) {
-    throw createHttpError(400, 'userId 不能为空');
+  if (!tokenId) {
+    throw createHttpError(400, 'tokenId 不能为空');
   }
 
-  const license = await repository.findUserLicense(userId);
-  console.log('getUserStatus license =>', JSON.stringify(license));
+  const license = await repository.findTokenLicense(tokenId);
 
   if (!license) {
     return {
       active: false,
-      userId: userId,
+      tokenId: tokenId,
       deviceType: 'unknown',
       subRole: 'normal',
       remainDays: 0,
-      expireAt: 0,
+      expireAt: '',
+      expireAtTs: 0,
       licenseStatus: 'inactive',
       activatedCode: ''
     };
@@ -322,6 +305,6 @@ module.exports = {
   generateCodes,
   activateCode,
   verifyCode,
-  getUserStatus,
-  padUserId
+  getTokenStatus,
+  padTokenId
 };

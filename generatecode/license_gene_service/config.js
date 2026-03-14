@@ -19,7 +19,7 @@ module.exports = {
   },
   tables: {
     activationCodes: process.env.OTS_TABLE_ACTIVATION_CODES || 'activation_codes',
-    userLicense: process.env.OTS_TABLE_USER_LICENSE || 'user_license',
+    userLicense: process.env.OTS_TABLE_TOKEN_LICENSE || 'token_license',
     activationLogs: process.env.OTS_TABLE_ACTIVATION_LOGS || 'activation_logs',
     systemMeta: process.env.OTS_TABLE_SYSTEM_META || 'system_meta'
   }

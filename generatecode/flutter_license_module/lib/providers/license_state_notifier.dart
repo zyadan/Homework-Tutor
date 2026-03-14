@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../models/user_global_state.dart';
+import '../models/token_global_state.dart';
 import '../services/license_api.dart';
 
-class LicenseStateNotifier extends StateNotifier<UserGlobalState?> {
+class LicenseStateNotifier extends StateNotifier<TokenGlobalState?> {
   LicenseStateNotifier(this._api) : super(null);
 
   final LicenseApi _api;
@@ -13,13 +13,13 @@ class LicenseStateNotifier extends StateNotifier<UserGlobalState?> {
     return current != null && current.activated && !current.isExpired;
   }
 
-  Future<UserGlobalState> refresh({
+  Future<TokenGlobalState> refresh({
     required String deviceId,
-    String? userId,
+    String? tokenId,
     String? code,
   }) async {
     final next = await _api.verify(
-      userId: userId,
+      tokenId: tokenId,
       deviceId: deviceId,
       code: code,
     );
@@ -27,7 +27,7 @@ class LicenseStateNotifier extends StateNotifier<UserGlobalState?> {
     return next;
   }
 
-  Future<UserGlobalState> activate({
+  Future<TokenGlobalState> activate({
     required String deviceId,
     required String code,
   }) async {

@@ -1,6 +1,6 @@
 export 'demo_app.dart';
 export 'models/generated_code_batch.dart';
-export 'models/user_global_state.dart';
+export 'models/token_global_state.dart';
 export 'pages/admin_generate_codes_page.dart';
 export 'pages/license_activation_page.dart';
 export 'providers/license_state_notifier.dart';

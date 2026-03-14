@@ -16,8 +16,8 @@ function toAttributeColumns(data) {
   return columns;
 }
 
-function padUserId(seq) {
-  return 'U' + ('000000' + String(seq)).slice(-6);
+function padTokenId(seq) {
+  return 'T' + ('000000' + String(seq)).slice(-6);
 }
 
 function formatDateTime(timestamp) {
@@ -38,9 +38,9 @@ function formatDateTime(timestamp) {
 
 function createEmptyStore() {
   return {
-    currentUserSeq: 0,
+    currentTokenSeq: 0,
     activationCodes: {},
-    userLicenses: {},
+    tokenLicenses: {},
     activationLogs: []
   };
 }
@@ -109,14 +109,14 @@ function rowToObject(columns) {
   return out;
 }
 
-async function allocateUserIdsMock(count) {
+async function allocateTokenIdsMock(count) {
   const store = readMockStore();
   const ids = [];
   let index = 0;
 
   while (index < count) {
-    store.currentUserSeq += 1;
-    ids.push(padUserId(store.currentUserSeq));
+    store.currentTokenSeq += 1;
+    ids.push(padTokenId(store.currentTokenSeq));
     index += 1;
   }
 
@@ -132,10 +132,20 @@ async function batchCreateActivationCodesMock(items) {
   writeMockStore(store);
 }
 
-async function batchCreateUserLicensesMock(items) {
+async function batchCreateTokenLicensesMock(items) {
   const store = readMockStore();
   items.forEach(function eachItem(item) {
-    store.userLicenses[item.userId] = item;
+    store.tokenLicenses[item.tokenId] = {
+      tokenId: item.tokenId,
+      deviceType: item.deviceType,
+      subRole: item.subRole,
+      expireAt: formatDateTime(item.expireAtTs || 0),
+      expireAtTs: item.expireAtTs || 0,
+      activatedCode: item.activatedCode,
+      updatedAt: formatDateTime(item.updatedAtTs || 0),
+      updatedAtTs: item.updatedAtTs || 0,
+      licenseStatus: item.licenseStatus
+    };
   });
   writeMockStore(store);
 }
@@ -154,27 +164,48 @@ async function markActivationCodeUsedMock(params) {
   }
 
   row.status = 'used';
-  row.usedAt = params.usedAt;
+  row.usedAtTs = params.usedAtTs;
+  row.usedAt = formatDateTime(params.usedAtTs || 0);
   row.usedByDeviceType = params.usedByDeviceType;
   store.activationCodes[params.code] = row;
   writeMockStore(store);
 }
 
-async function findUserLicenseMock(userId) {
+async function findTokenLicenseMock(tokenId) {
   const store = readMockStore();
-  return store.userLicenses[userId] || null;
+  return store.tokenLicenses[tokenId] || null;
 }
 
-async function upsertUserLicenseMock(license) {
+async function upsertTokenLicenseMock(license) {
   const store = readMockStore();
-  store.userLicenses[license.userId] = license;
+  store.tokenLicenses[license.tokenId] = {
+    tokenId: license.tokenId,
+    deviceType: license.deviceType,
+    subRole: license.subRole,
+    expireAt: formatDateTime(license.expireAtTs || 0),
+    expireAtTs: license.expireAtTs || 0,
+    activatedCode: license.activatedCode,
+    updatedAt: formatDateTime(license.updatedAtTs || 0),
+    updatedAtTs: license.updatedAtTs || 0,
+    licenseStatus: license.licenseStatus
+  };
   writeMockStore(store);
-  return license;
+  return store.tokenLicenses[license.tokenId];
 }
 
 async function appendActivationLogMock(log) {
   const store = readMockStore();
-  store.activationLogs.push(log);
+  store.activationLogs.push({
+    action: log.action,
+    code: log.code,
+    tokenId: log.tokenId,
+    deviceType: log.deviceType,
+    result: log.result,
+    message: log.message,
+    time: formatDateTime(log.timeTs || 0),
+    timeTs: log.timeTs || 0,
+    batchId: log.batchId
+  });
   writeMockStore(store);
 }
 
@@ -182,11 +213,9 @@ async function getCurrentSequenceFromTable(client) {
   try {
     const response = await client.getRow({
       tableName: config.tables.systemMeta,
-      primaryKey: [{ meta_key: 'user_id_sequence' }],
+      primaryKey: [{ meta_key: 'token_id_sequence' }],
       maxVersions: 1
     });
-
-    console.log('getCurrentSequenceFromTable raw response =>', JSON.stringify(response));
 
     if (!response || !response.row) {
       return 0;
@@ -200,8 +229,6 @@ async function getCurrentSequenceFromTable(client) {
       []
     );
 
-    console.log('getCurrentSequenceFromTable parsed attrs =>', JSON.stringify(attrs));
-
     return parseInt(attrs.current_value || 0, 10);
   } catch (error) {
     if (String(error && error.message || '').indexOf('OTSObjectNotExist') >= 0) {
@@ -212,7 +239,7 @@ async function getCurrentSequenceFromTable(client) {
 }
 
 async function saveCurrentSequenceToTable(client, value) {
-  const updatedAt = Date.now();
+  const updatedAtTs = Date.now();
 
   await client.putRow({
     tableName: config.tables.systemMeta,
@@ -220,16 +247,16 @@ async function saveCurrentSequenceToTable(client, value) {
       Tablestore.RowExistenceExpectation.IGNORE,
       null
     ),
-    primaryKey: [{ meta_key: 'user_id_sequence' }],
+    primaryKey: [{ meta_key: 'token_id_sequence' }],
     attributeColumns: toAttributeColumns({
       current_value: Number(value || 0),
-      updated_at: Number(updatedAt),
-      updated_at_text: formatDateTime(updatedAt)
+      updated_at: formatDateTime(updatedAtTs),
+      updated_at_ts: Number(updatedAtTs)
     })
   });
 }
 
-async function allocateUserIdsTable(count) {
+async function allocateTokenIdsTable(count) {
   const client = createClient();
   const current = await getCurrentSequenceFromTable(client);
   const ids = [];
@@ -238,7 +265,7 @@ async function allocateUserIdsTable(count) {
 
   while (index < count) {
     seq += 1;
-    ids.push(padUserId(seq));
+    ids.push(padTokenId(seq));
     index += 1;
   }
 
@@ -253,14 +280,6 @@ async function batchCreateActivationCodesTable(items) {
   while (index < items.length) {
     const item = items[index];
 
-    console.log('writing activation code row =>', JSON.stringify({
-      code: item.code,
-      user_id: item.userId,
-      duration_days: item.durationDays,
-      batch_id: item.batchId,
-      status: item.status
-    }));
-
     await client.putRow({
       tableName: config.tables.activationCodes,
       condition: new Tablestore.Condition(
@@ -269,15 +288,15 @@ async function batchCreateActivationCodesTable(items) {
       ),
       primaryKey: [{ code: item.code }],
       attributeColumns: toAttributeColumns({
-        user_id: String(item.userId || ''),
+        token_id: String(item.tokenId || ''),
         duration_days: Number(item.durationDays || 0),
         batch_id: String(item.batchId || ''),
         remark: String(item.remark || ''),
-        status: String(item.status || 'unused'),
-        created_at: Number(item.createdAt || 0),
-        created_at_text: formatDateTime(item.createdAt || 0),
-        used_at: Number(item.usedAt || 0),
-        used_at_text: formatDateTime(item.usedAt || 0),
+        status: String(item.status || 'inactivate'),
+        created_at: formatDateTime(item.createdAtTs || 0),
+        created_at_ts: Number(item.createdAtTs || 0),
+        used_at: formatDateTime(item.usedAtTs || 0),
+        used_at_ts: Number(item.usedAtTs || 0),
         used_by_device_type: String(item.usedByDeviceType || '')
       })
     });
@@ -286,14 +305,12 @@ async function batchCreateActivationCodesTable(items) {
   }
 }
 
-async function batchCreateUserLicensesTable(items) {
+async function batchCreateTokenLicensesTable(items) {
   const client = createClient();
   let index = 0;
 
   while (index < items.length) {
     const item = items[index];
-
-    console.log('writing initial user license row =>', JSON.stringify(item));
 
     await client.putRow({
       tableName: config.tables.userLicense,
@@ -301,15 +318,15 @@ async function batchCreateUserLicensesTable(items) {
         Tablestore.RowExistenceExpectation.IGNORE,
         null
       ),
-      primaryKey: [{ user_id: String(item.userId || '') }],
+      primaryKey: [{ token_id: String(item.tokenId || '') }],
       attributeColumns: toAttributeColumns({
         device_type: String(item.deviceType || ''),
         sub_role: String(item.subRole || 'normal'),
-        expire_at: Number(item.expireAt || 0),
-        expire_at_text: formatDateTime(item.expireAt || 0),
+        expire_at: formatDateTime(item.expireAtTs || 0),
+        expire_at_ts: Number(item.expireAtTs || 0),
         activated_code: String(item.activatedCode || ''),
-        updated_at: Number(item.updatedAt || 0),
-        updated_at_text: formatDateTime(item.updatedAt || 0),
+        updated_at: formatDateTime(item.updatedAtTs || 0),
+        updated_at_ts: Number(item.updatedAtTs || 0),
         license_status: String(item.licenseStatus || 'inactive')
       })
     });
@@ -326,8 +343,6 @@ async function findActivationCodeTable(code) {
     maxVersions: 1
   });
 
-  console.log('findActivationCodeTable raw response =>', JSON.stringify(response));
-
   if (!response || !response.row) {
     return null;
   }
@@ -340,17 +355,17 @@ async function findActivationCodeTable(code) {
     []
   );
 
-  console.log('findActivationCodeTable parsed attrs =>', JSON.stringify(attrs));
-
   return {
     code: code,
-    userId: attrs.user_id || '',
+    tokenId: attrs.token_id || '',
     durationDays: parseInt(attrs.duration_days || 0, 10),
     batchId: attrs.batch_id || '',
     remark: attrs.remark || '',
-    status: attrs.status || 'unused',
-    createdAt: parseInt(attrs.created_at || 0, 10),
-    usedAt: parseInt(attrs.used_at || 0, 10),
+    status: attrs.status || 'inactivate',
+    createdAt: attrs.created_at || '',
+    createdAtTs: parseInt(attrs.created_at_ts || 0, 10),
+    usedAt: attrs.used_at || '',
+    usedAtTs: parseInt(attrs.used_at_ts || 0, 10),
     usedByDeviceType: attrs.used_by_device_type || ''
   };
 }
@@ -364,8 +379,8 @@ async function markActivationCodeUsedTable(params) {
       {
         PUT: [
           { status: 'used' },
-          { used_at: Number(params.usedAt || 0) },
-          { used_at_text: formatDateTime(params.usedAt || 0) },
+          { used_at: formatDateTime(params.usedAtTs || 0) },
+          { used_at_ts: Number(params.usedAtTs || 0) },
           { used_by_device_type: String(params.usedByDeviceType || '') }
         ]
       }
@@ -377,15 +392,13 @@ async function markActivationCodeUsedTable(params) {
   });
 }
 
-async function findUserLicenseTable(userId) {
+async function findTokenLicenseTable(tokenId) {
   const client = createClient();
   const response = await client.getRow({
     tableName: config.tables.userLicense,
-    primaryKey: [{ user_id: userId }],
+    primaryKey: [{ token_id: tokenId }],
     maxVersions: 1
   });
-
-  console.log('findUserLicenseTable raw response =>', JSON.stringify(response));
 
   if (!response || !response.row) {
     return null;
@@ -399,23 +412,21 @@ async function findUserLicenseTable(userId) {
     []
   );
 
-  console.log('findUserLicenseTable parsed attrs =>', JSON.stringify(attrs));
-
   return {
-    userId: userId,
+    tokenId: tokenId,
     deviceType: attrs.device_type || '',
     subRole: attrs.sub_role || 'normal',
-    expireAt: parseInt(attrs.expire_at || 0, 10),
+    expireAt: attrs.expire_at || '',
+    expireAtTs: parseInt(attrs.expire_at_ts || 0, 10),
     activatedCode: attrs.activated_code || '',
-    updatedAt: parseInt(attrs.updated_at || 0, 10),
+    updatedAt: attrs.updated_at || '',
+    updatedAtTs: parseInt(attrs.updated_at_ts || 0, 10),
     licenseStatus: attrs.license_status || 'inactive'
   };
 }
 
-async function upsertUserLicenseTable(license) {
+async function upsertTokenLicenseTable(license) {
   const client = createClient();
-
-  console.log('upsertUserLicenseTable input =>', JSON.stringify(license));
 
   await client.putRow({
     tableName: config.tables.userLicense,
@@ -423,20 +434,30 @@ async function upsertUserLicenseTable(license) {
       Tablestore.RowExistenceExpectation.IGNORE,
       null
     ),
-    primaryKey: [{ user_id: String(license.userId || '') }],
+    primaryKey: [{ token_id: String(license.tokenId || '') }],
     attributeColumns: toAttributeColumns({
       device_type: String(license.deviceType || ''),
       sub_role: String(license.subRole || 'normal'),
-      expire_at: Number(license.expireAt || 0),
-      expire_at_text: formatDateTime(license.expireAt || 0),
+      expire_at: formatDateTime(license.expireAtTs || 0),
+      expire_at_ts: Number(license.expireAtTs || 0),
       activated_code: String(license.activatedCode || ''),
-      updated_at: Number(license.updatedAt || 0),
-      updated_at_text: formatDateTime(license.updatedAt || 0),
+      updated_at: formatDateTime(license.updatedAtTs || 0),
+      updated_at_ts: Number(license.updatedAtTs || 0),
       license_status: String(license.licenseStatus || 'inactive')
     })
   });
 
-  return license;
+  return {
+    tokenId: license.tokenId,
+    deviceType: license.deviceType || '',
+    subRole: license.subRole || 'normal',
+    expireAt: formatDateTime(license.expireAtTs || 0),
+    expireAtTs: Number(license.expireAtTs || 0),
+    activatedCode: license.activatedCode || '',
+    updatedAt: formatDateTime(license.updatedAtTs || 0),
+    updatedAtTs: Number(license.updatedAtTs || 0),
+    licenseStatus: license.licenseStatus || 'inactive'
+  };
 }
 
 async function appendActivationLogTable(log) {
@@ -448,31 +469,31 @@ async function appendActivationLogTable(log) {
       Tablestore.RowExistenceExpectation.IGNORE,
       null
     ),
-    primaryKey: [{ log_id: String(log.time) + '_' + Math.random() }],
+    primaryKey: [{ log_id: String(log.timeTs) + '_' + Math.random() }],
     attributeColumns: toAttributeColumns({
       action: String(log.action || ''),
       code: String(log.code || ''),
-      user_id: String(log.userId || ''),
+      token_id: String(log.tokenId || ''),
       device_type: String(log.deviceType || ''),
       result: String(log.result || ''),
       message: String(log.message || ''),
-      time: Number(log.time || 0),
-      time_text: formatDateTime(log.time || 0),
+      time: formatDateTime(log.timeTs || 0),
+      time_ts: Number(log.timeTs || 0),
       batch_id: String(log.batchId || '')
     })
   });
 }
 
-async function allocateUserIds(count) {
-  return isMock() ? allocateUserIdsMock(count) : allocateUserIdsTable(count);
+async function allocateTokenIds(count) {
+  return isMock() ? allocateTokenIdsMock(count) : allocateTokenIdsTable(count);
 }
 
 async function batchCreateActivationCodes(items) {
   return isMock() ? batchCreateActivationCodesMock(items) : batchCreateActivationCodesTable(items);
 }
 
-async function batchCreateUserLicenses(items) {
-  return isMock() ? batchCreateUserLicensesMock(items) : batchCreateUserLicensesTable(items);
+async function batchCreateTokenLicenses(items) {
+  return isMock() ? batchCreateTokenLicensesMock(items) : batchCreateTokenLicensesTable(items);
 }
 
 async function findActivationCode(code) {
@@ -483,12 +504,12 @@ async function markActivationCodeUsed(params) {
   return isMock() ? markActivationCodeUsedMock(params) : markActivationCodeUsedTable(params);
 }
 
-async function findUserLicense(userId) {
-  return isMock() ? findUserLicenseMock(userId) : findUserLicenseTable(userId);
+async function findTokenLicense(tokenId) {
+  return isMock() ? findTokenLicenseMock(tokenId) : findTokenLicenseTable(tokenId);
 }
 
-async function upsertUserLicense(license) {
-  return isMock() ? upsertUserLicenseMock(license) : upsertUserLicenseTable(license);
+async function upsertTokenLicense(license) {
+  return isMock() ? upsertTokenLicenseMock(license) : upsertTokenLicenseTable(license);
 }
 
 async function appendActivationLog(log) {
@@ -496,12 +517,12 @@ async function appendActivationLog(log) {
 }
 
 module.exports = {
-  allocateUserIds,
+  allocateTokenIds,
   batchCreateActivationCodes,
-  batchCreateUserLicenses,
+  batchCreateTokenLicenses,
   findActivationCode,
   markActivationCodeUsed,
-  findUserLicense,
-  upsertUserLicense,
+  findTokenLicense,
+  upsertTokenLicense,
   appendActivationLog
 };

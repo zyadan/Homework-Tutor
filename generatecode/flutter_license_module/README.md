@@ -3,9 +3,9 @@
 这是一个可复用的 Flutter 授权模块，包含：
 
 - 激活码生成页面
-- 用户激活页面
-- 用户授权状态模型
-- 用户授权接口
+- Token 激活页面
+- Token 授权状态模型
+- Token 授权接口
 - 管理员生成激活码接口
 - 可直接运行的 example
 
@@ -14,7 +14,7 @@
 - `lib/flutter_license_module.dart`: 导出入口
 - `lib/demo_app.dart`: 模块宿主页
 - `lib/pages/admin_generate_codes_page.dart`: 生成激活码页面
-- `lib/pages/license_activation_page.dart`: 用户激活页面
+- `lib/pages/license_activation_page.dart`: Token 激活页面
 - `example/lib/main.dart`: 可直接运行的示例入口
 
 ## 依赖
@@ -47,7 +47,7 @@ flutter run -t example/lib/main.dart
 - Android 模拟器: `http://10.0.2.2:9000`
 - 桌面或 iOS 模拟器: `http://127.0.0.1:9000`
 - `adminToken`: `test-admin`
-- `userId`: `u1001`
+- `tokenId`: `u1001`
 - `deviceId`: `android-001`
 
 4. 点击 `进入模块 Demo`
@@ -55,7 +55,7 @@ flutter run -t example/lib/main.dart
 你会看到两个页签：
 
 - `生成激活码`
-- `用户激活`
+- `Token 激活`
 
 ## 生成激活码页面可以做什么
 

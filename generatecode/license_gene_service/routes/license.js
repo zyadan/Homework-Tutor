@@ -44,7 +44,7 @@ module.exports = function createLicenseRouter() {
       const body = req.body || {};
       const result = await licenseService.verifyCode({
         code: body.code,
-        userId: body.userId || '',
+        tokenId: body.tokenId || '',
         deviceType: body.deviceType || body.deviceId || 'unknown'
       });
       res.json(result);
@@ -55,8 +55,8 @@ module.exports = function createLicenseRouter() {
 
   router.get('/user/status', async function handleStatus(req, res, next) {
     try {
-      const result = await licenseService.getUserStatus({
-        userId: req.query.userId || ''
+      const result = await licenseService.getTokenStatus({
+        tokenId: req.query.tokenId || ''
       });
       res.json(result);
     } catch (error) {

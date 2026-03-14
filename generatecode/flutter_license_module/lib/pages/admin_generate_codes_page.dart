@@ -142,7 +142,7 @@ class _AdminGenerateCodesPageState extends State<AdminGenerateCodesPage>
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 8),
-                    const Text('每生成一个激活码，后端会自动分配一个连续用户ID并写入数据库。'),
+                    const Text('每生成一个激活码，后端会自动分配一个连续 token ID 并写入数据库。'),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _countController,
@@ -247,8 +247,8 @@ class _AdminGenerateCodesPageState extends State<AdminGenerateCodesPage>
                         _InfoChip(label: '数量', value: '${_result!.count}'),
                         _InfoChip(label: '天数', value: '${_result!.durationDays}'),
                         _InfoChip(label: '批次', value: _result!.batchId ?? '-'),
-                        _InfoChip(label: '起始用户', value: _result!.startUserId ?? '-'),
-                        _InfoChip(label: '结束用户', value: _result!.endUserId ?? '-'),
+                        _InfoChip(label: '起始 Token', value: _result!.startTokenId ?? '-'),
+                        _InfoChip(label: '结束 Token', value: _result!.endTokenId ?? '-'),
                       ],
                     ),
                   ],
@@ -260,7 +260,7 @@ class _AdminGenerateCodesPageState extends State<AdminGenerateCodesPage>
               (item) => Card(
                 child: ListTile(
                   title: SelectableText(item.code),
-                  subtitle: Text('用户ID: ${item.userId}'),
+                  subtitle: Text('Token ID: ${item.tokenId}'),
                   trailing: IconButton(
                     onPressed: () => _copyItem(item),
                     icon: const Icon(Icons.copy_outlined),
