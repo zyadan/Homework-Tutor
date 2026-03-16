@@ -186,4 +186,35 @@ D. 测试
   再接 Flutter。
 
 
+# 导出tablestore里面的数据到本地json
+首先安装NodeJS
+https://nodejs.org/en/download
+直接下载msi，安装成功
 
+打开Windows PowerShell 而不是cmd
+
+```
+node -v
+npm -v
+
+mkdir table_export
+```
+建立set_env.ps1 # 最开始是access key名字和密码
+```
+$env:ALIBABA_CLOUD_ACCESS_KEY_ID=""
+$env:ALIBABA_CLOUD_ACCESS_KEY_SECRET=""
+$env:OTS_ENDPOINT="https://license-gene.cn-hangzhou.ots.aliyuncs.com"
+$env:OTS_INSTANCE="license-gene"
+
+Write-Host " ENV READY"
+```
+```
+.\set_env.ps1
+```
+若无法执行脚本
+```
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+```
+node export_all_tablestore_tables.js
+```
